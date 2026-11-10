@@ -1,0 +1,26 @@
+{
+  "name": "brasa-captacao-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web app de captação das conferências BRASA: o time marca status e sobe vídeos direto do celular para o Drive, com a planilha como fonte da verdade.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.4.3",
+    "next-auth": "5.0.0-beta.32",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.1",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}
