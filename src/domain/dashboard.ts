@@ -39,6 +39,38 @@ export function pendingByOwner(recordings: readonly Recording[]): OwnerLoad[] {
   return [...loads.values()].sort((a, b) => a.owner.localeCompare(b.owner, "pt-BR"));
 }
 
+export interface OwnerProgress {
+  owner: string;
+  recorded: number;
+  missed: number;
+  total: number;
+  /** Open recordings first (in schedule order), then the closed ones. */
+  recordings: Recording[];
+}
+
+/**
+ * Who has been captured, per video owner. Anchors stay in (under the external videomaker) because the
+ * coordinator also needs to see them; rows without a video owner are photo-only and have nothing to track.
+ */
+export function progressByOwner(recordings: readonly Recording[]): OwnerProgress[] {
+  const groups = new Map<string, Recording[]>();
+  for (const recording of recordings) {
+    if (!recording.videoOwner) continue;
+    groups.set(recording.videoOwner, [...(groups.get(recording.videoOwner) ?? []), recording]);
+  }
+  const isExternal = (group: readonly Recording[]) => group.every((recording) => recording.isAnchor);
+  return [...groups.entries()]
+    .sort(([ownerA, groupA], [ownerB, groupB]) =>
+      Number(isExternal(groupA)) - Number(isExternal(groupB)) || ownerA.localeCompare(ownerB, "pt-BR"))
+    .map(([owner, group]) => ({
+      owner,
+      recorded: group.filter((recording) => recording.status === "Gravado").length,
+      missed: group.filter((recording) => recording.status === "Não veio").length,
+      total: group.length,
+      recordings: [...group].sort((a, b) => Number(isResolved(a)) - Number(isResolved(b)) || bySchedule(a, b)),
+    }));
+}
+
 export function highPriorityPending(recordings: readonly Recording[]): Recording[] {
   return recordings.filter((recording) => recording.priority === "Alta" && !isResolved(recording));
 }

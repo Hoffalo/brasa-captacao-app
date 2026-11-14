@@ -6,9 +6,10 @@ import { isResolved, type Recording } from "@/domain/recording";
 import { EXTERNAL_VIDEOMAKER } from "@/domain/sheetLayout";
 import { ApiError, loadBoard, type Board } from "@/web/apiClient";
 import { Panel } from "./Panel";
+import { Progress } from "./Progress";
 import { RecordingCard } from "./RecordingCard";
 
-type View = "mine" | "all" | "panel";
+type View = "mine" | "all" | "progress" | "panel";
 
 const PERSON_STORAGE_KEY = "captacao.pessoa";
 // The sheet is edited by several people at once; a minute keeps the list fresh without hammering the API.
@@ -109,7 +110,7 @@ export function CaptureApp({ conference, userName, signOutAction }: CaptureAppPr
       </header>
 
       <nav className="tabs" aria-label="Visões">
-        {([["mine", "Minhas"], ["all", "Todas"], ["panel", "Painel"]] as const).map(([value, label]) => (
+        {([["mine", "Minhas"], ["all", "Todas"], ["progress", "Progresso"], ["panel", "Painel"]] as const).map(([value, label]) => (
           <button key={value} className={view === value ? "tab active" : "tab"} onClick={() => setView(value)}>
             {label}
           </button>
@@ -119,7 +120,7 @@ export function CaptureApp({ conference, userName, signOutAction }: CaptureAppPr
       {error && <p className="alert">{error}</p>}
       {!board && !error && <p className="muted center">Carregando a planilha…</p>}
 
-      {board && view !== "panel" && (
+      {board && (view === "mine" || view === "all") && (
         <section className="list">
           <div className="filters">
             {view === "mine" && (
@@ -145,6 +146,7 @@ export function CaptureApp({ conference, userName, signOutAction }: CaptureAppPr
         </section>
       )}
 
+      {board && view === "progress" && <Progress board={board} />}
       {board && view === "panel" && <Panel board={board} />}
     </div>
   );
